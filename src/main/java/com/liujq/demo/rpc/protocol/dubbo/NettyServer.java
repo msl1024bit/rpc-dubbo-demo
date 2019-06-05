@@ -1,4 +1,4 @@
-package com.liujq.demo.rpc.netty;
+package com.liujq.demo.rpc.protocol.dubbo;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
@@ -6,10 +6,13 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.codec.string.StringDecoder;
-import io.netty.handler.codec.string.StringEncoder;
+import io.netty.handler.codec.serialization.ClassResolvers;
+import io.netty.handler.codec.serialization.ObjectDecoder;
+import io.netty.handler.codec.serialization.ObjectEncoder;
 
 /**
+ * Netty服务端
+ *
  * @author Jiqiang.Liu
  * @date 2019-05-28
  */
@@ -18,24 +21,26 @@ public class NettyServer {
     /**
      * 启动netty服务端
      *
+     * @param hostName 域名地址
      * @param port 端口
      */
-    public static void startServer(int port) {
+    public void start(String hostName, int port) {
+
+        NioEventLoopGroup group = new NioEventLoopGroup();
         try {
-            ServerBootstrap bootstrap = new ServerBootstrap();
-            NioEventLoopGroup group = new NioEventLoopGroup();
+            final ServerBootstrap bootstrap = new ServerBootstrap();
             bootstrap.group(group)
                     .channel(NioServerSocketChannel.class)
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel ch) throws Exception {
                             ChannelPipeline pipeline = ch.pipeline();
-                            pipeline.addLast(new StringDecoder());
-                            pipeline.addLast(new StringEncoder());
-                            pipeline.addLast(new HelloServerHandler());
+                            pipeline.addLast("decoder", new ObjectDecoder(ClassResolvers.weakCachingConcurrentResolver(this.getClass().getClassLoader())));
+                            pipeline.addLast("encoder", new ObjectEncoder());
+                            pipeline.addLast("handler", new NettyServerHandler());
                         }
                     });
-            bootstrap.bind(port).sync();
+            bootstrap.bind(hostName, port).sync();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
