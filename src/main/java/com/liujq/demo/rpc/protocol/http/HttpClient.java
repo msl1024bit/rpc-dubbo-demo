@@ -2,6 +2,8 @@ package com.liujq.demo.rpc.protocol.http;
 
 import com.liujq.demo.rpc.framework.Request;
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,6 +20,8 @@ import java.nio.charset.Charset;
  * @date 2019-06-05
  */
 public class HttpClient {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpClient.class);
 
     /**
      * 发送请求
@@ -47,7 +51,7 @@ public class HttpClient {
             return IOUtils.toString(inputStream, Charset.defaultCharset());
 
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("http client post error", e);
         } finally {
             try {
                 if (oos != null) {

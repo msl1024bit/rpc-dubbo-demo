@@ -1,6 +1,8 @@
 package com.liujq.demo.rpc.register;
 
 import com.liujq.demo.rpc.framework.URL;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.*;
@@ -13,6 +15,8 @@ import java.util.concurrent.ThreadLocalRandom;
  * @date 2019-06-05
  */
 public class Register {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(Register.class);
 
     private static Map<String, Map<URL, Class>> REGISTER = new HashMap<>();
 
@@ -33,7 +37,7 @@ public class Register {
             ObjectOutputStream oos = new ObjectOutputStream(fileOutputStream);
             oos.writeObject(REGISTER);
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("Register save file error", e);
         }
     }
 
@@ -49,13 +53,13 @@ public class Register {
             ObjectInputStream ois = new ObjectInputStream(fileInputStream);
             return (Map<String, Map<URL, Class>>) ois.readObject();
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("Register get file error", e);
         }
         return null;
     }
 
     /**
-     * 负载均衡算法
+     * 负载均衡随机算法
      *
      * @param interfaceName 接口名
      * @return 实现类的服务地址

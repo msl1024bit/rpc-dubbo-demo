@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
  */
 public class NettyClient {
 
-    private static Logger logger = LoggerFactory.getLogger(NettyClient.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(NettyClient.class);
 
     private NettyClientHandler nettyClientHandler = new NettyClientHandler();
 
@@ -56,7 +56,7 @@ public class NettyClient {
             return defaultFuture.send();
 
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("netty client start error", e);
         } finally {
             group.shutdownGracefully();
         }

@@ -9,6 +9,8 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Netty服务端
@@ -17,6 +19,8 @@ import io.netty.handler.codec.serialization.ObjectEncoder;
  * @date 2019-05-28
  */
 public class NettyServer {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(NettyServer.class);
 
     /**
      * 启动netty服务端
@@ -42,7 +46,7 @@ public class NettyServer {
                     });
             bootstrap.bind(hostName, port).sync();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            LOGGER.error("netty server start error", e);
         }
     }
 }

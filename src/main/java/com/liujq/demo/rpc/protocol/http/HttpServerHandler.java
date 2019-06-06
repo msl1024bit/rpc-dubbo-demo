@@ -4,6 +4,8 @@ import com.liujq.demo.rpc.framework.Request;
 import com.liujq.demo.rpc.register.Register;
 import com.liujq.demo.rpc.framework.URL;
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -21,10 +23,11 @@ import java.nio.charset.Charset;
  */
 public class HttpServerHandler {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpServerHandler.class);
+
     public void handle(HttpServletRequest req, HttpServletResponse resp) {
 
         try {
-
             // 获取请求数据
             InputStream inputStream = req.getInputStream();
             ObjectInputStream ois = new ObjectInputStream(inputStream);
@@ -44,7 +47,7 @@ public class HttpServerHandler {
             IOUtils.write("Tomcat:" + result, outputStream, Charset.defaultCharset());
 
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("http server handle error", e);
         }
     }
 }

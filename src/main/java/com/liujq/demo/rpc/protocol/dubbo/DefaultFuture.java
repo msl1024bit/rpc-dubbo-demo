@@ -4,6 +4,8 @@ import com.liujq.demo.rpc.framework.Request;
 import com.liujq.demo.rpc.framework.Response;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.Objects;
@@ -17,6 +19,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * @date 2019-06-05
  */
 public class DefaultFuture extends CompletableFuture<Object> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultFuture.class);
 
     private static final Map<Long, DefaultFuture> FUTURES = new ConcurrentHashMap<>();
 
@@ -41,9 +45,9 @@ public class DefaultFuture extends CompletableFuture<Object> {
     private Response response;
 
     /**
-     * 接口调用超时时间
+     * 接口调用默认超时时间
      */
-    private Long timeout = 300L;
+    private Long timeout = 3000L;
 
     /**
      * 调用开始时间
@@ -77,18 +81,20 @@ public class DefaultFuture extends CompletableFuture<Object> {
     public Object send() {
         ChannelFuture channelFuture = channel.writeAndFlush(request);
         try {
+            // 阻塞一直到超时或者有结果返回
             channelFuture.await();
             while (System.currentTimeMillis() - start <= timeout) {
                 DefaultFuture defaultFuture = FUTURES.get(request.getId());
                 Response response = defaultFuture.getResponse();
                 if (Objects.nonNull(response)) {
+                    // 移除已经有返回的future
                     FUTURES.remove(request.getId());
                     return response.getData();
                 }
             }
             FUTURES.remove(request.getId());
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            LOGGER.error("DefaultFuture send error", e);
         }
         return null;
     }
